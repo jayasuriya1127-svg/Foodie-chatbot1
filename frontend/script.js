@@ -1,7 +1,7 @@
 /* =====================================================
    FOODIEBOT AI
    FRONTEND CONTROLLER
-   Firebase Firestore + Gemini Backend
+   Firebase Firestore + Flask + Gemini Backend
 ===================================================== */
 
 import {
@@ -23,28 +23,67 @@ import {
 // CONFIGURATION
 // =====================================================
 
-const API_URL = "http://127.0.0.1:5000/chat";
+// IMPORTANT:
+// Using relative URL makes the chatbot work both:
+// Localhost and Render.
+//
+// Local:
+// http://127.0.0.1:5000/chat
+//
+// Render:
+// https://foodie-chatbot1.onrender.com/chat
+
+const API_URL = "/chat";
 
 
 // =====================================================
 // DOM ELEMENTS
 // =====================================================
 
-const userInput = document.getElementById("userInput");
-const sendBtn = document.getElementById("sendBtn");
-const messages = document.getElementById("messages");
-const welcomeSection = document.getElementById("welcomeSection");
-const typingIndicator = document.getElementById("typingIndicator");
-const newChatBtn = document.getElementById("newChatBtn");
-const themeBtn = document.getElementById("themeBtn");
-const favoriteBtn = document.getElementById("favoriteBtn");
-const favoritePanel = document.getElementById("favoritePanel");
-const closeFavorite = document.getElementById("closeFavorite");
-const toast = document.getElementById("toast");
-const toastMessage = document.getElementById("toastMessage");
-const voiceBtn = document.getElementById("voiceBtn");
-const addButton = document.getElementById("addButton");
-const favoriteContent = document.getElementById("favoriteContent");
+const userInput =
+    document.getElementById("userInput");
+
+const sendBtn =
+    document.getElementById("sendBtn");
+
+const messages =
+    document.getElementById("messages");
+
+const welcomeSection =
+    document.getElementById("welcomeSection");
+
+const typingIndicator =
+    document.getElementById("typingIndicator");
+
+const newChatBtn =
+    document.getElementById("newChatBtn");
+
+const themeBtn =
+    document.getElementById("themeBtn");
+
+const favoriteBtn =
+    document.getElementById("favoriteBtn");
+
+const favoritePanel =
+    document.getElementById("favoritePanel");
+
+const closeFavorite =
+    document.getElementById("closeFavorite");
+
+const toast =
+    document.getElementById("toast");
+
+const toastMessage =
+    document.getElementById("toastMessage");
+
+const voiceBtn =
+    document.getElementById("voiceBtn");
+
+const addButton =
+    document.getElementById("addButton");
+
+const favoriteContent =
+    document.getElementById("favoriteContent");
 
 
 // =====================================================
@@ -54,7 +93,9 @@ const favoriteContent = document.getElementById("favoriteContent");
 let favorites = [];
 
 let darkMode =
-    localStorage.getItem("foodieDarkMode") === "true";
+    localStorage.getItem(
+        "foodieDarkMode"
+    ) === "true";
 
 let isSending = false;
 
@@ -63,17 +104,27 @@ let isSending = false;
 // INITIALIZE APPLICATION
 // =====================================================
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
 
-    updateTheme();
+        updateTheme();
 
-    await loadFavorites();
+        await loadFavorites();
 
-    setupEventListeners();
+        setupEventListeners();
 
-    console.log("FoodieBot AI initialized 🚀");
+        console.log(
+            "FoodieBot AI initialized 🚀"
+        );
 
-});
+        console.log(
+            "API URL:",
+            API_URL
+        );
+
+    }
+);
 
 
 // =====================================================
@@ -82,19 +133,29 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 function setupEventListeners() {
 
-    sendBtn?.addEventListener("click", sendMessage);
+    sendBtn?.addEventListener(
+        "click",
+        sendMessage
+    );
 
-    userInput?.addEventListener("keydown", event => {
 
-        if (event.key === "Enter" && !event.shiftKey) {
+    userInput?.addEventListener(
+        "keydown",
+        event => {
 
-            event.preventDefault();
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
 
-            sendMessage();
+                event.preventDefault();
+
+                sendMessage();
+
+            }
 
         }
-
-    });
+    );
 
 
     userInput?.addEventListener(
@@ -131,7 +192,9 @@ function setupEventListeners() {
         "click",
         event => {
 
-            if (event.target === favoritePanel) {
+            if (
+                event.target === favoritePanel
+            ) {
 
                 closeFavoritesPanel();
 
@@ -176,11 +239,16 @@ function setupEventListeners() {
                         return;
                     }
 
-                    userInput.value = prompt;
+                    if (userInput) {
 
-                    autoResize();
+                        userInput.value =
+                            prompt;
 
-                    userInput.focus();
+                        autoResize();
+
+                        userInput.focus();
+
+                    }
 
                 }
             );
@@ -233,7 +301,12 @@ async function sendMessage() {
     );
 
 
-    userInput.value = "";
+    if (userInput) {
+
+        userInput.value = "";
+
+    }
+
 
     resetTextarea();
 
@@ -251,10 +324,22 @@ async function sendMessage() {
     try {
 
         console.log(
-            "Sending message to backend:",
+            "📤 Sending message:"
+        );
+
+        console.log(
             message
         );
 
+        console.log(
+            "🌐 API:",
+            API_URL
+        );
+
+
+        // =================================================
+        // SEND REQUEST TO FLASK BACKEND
+        // =================================================
 
         const response =
             await fetch(
@@ -275,10 +360,14 @@ async function sendMessage() {
 
 
         console.log(
-            "Backend status:",
+            "📡 Backend status:",
             response.status
         );
 
+
+        // =================================================
+        // HANDLE HTTP ERROR
+        // =================================================
 
         if (!response.ok) {
 
@@ -286,7 +375,7 @@ async function sendMessage() {
                 await response.text();
 
             console.error(
-                "Backend response:",
+                "❌ Backend response:",
                 errorText
             );
 
@@ -297,12 +386,16 @@ async function sendMessage() {
         }
 
 
+        // =================================================
+        // READ JSON RESPONSE
+        // =================================================
+
         const data =
             await response.json();
 
 
         console.log(
-            "Backend data:",
+            "📦 Backend data:",
             data
         );
 
@@ -325,11 +418,19 @@ async function sendMessage() {
         hideTyping();
 
 
+        // =================================================
+        // DISPLAY BOT MESSAGE
+        // =================================================
+
         addMessage(
             reply,
             "bot"
         );
 
+
+        // =================================================
+        // SAVE CHAT TO FIREBASE
+        // =================================================
 
         await saveChatToFirestore(
             message,
@@ -340,7 +441,7 @@ async function sendMessage() {
     } catch (error) {
 
         console.error(
-            "FoodieBot error:",
+            "❌ FoodieBot error:",
             error
         );
 
@@ -349,8 +450,12 @@ async function sendMessage() {
 
 
         addMessage(
-            "⚠️ I couldn't connect to FoodieBot. Please make sure the Flask backend is running on port 5000.",
+
+            "⚠️ Sorry, I couldn't connect to FoodieBot. " +
+            "Please try again.",
+
             "bot"
+
         );
 
 
@@ -388,7 +493,9 @@ function addMessage(
 
 
     const messageElement =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
 
     messageElement.classList.add(
@@ -496,10 +603,12 @@ async function saveChatToFirestore(
     try {
 
         await addDoc(
+
             collection(
                 db,
                 "chats"
             ),
+
             {
                 message: message,
 
@@ -508,6 +617,7 @@ async function saveChatToFirestore(
                 createdAt:
                     serverTimestamp()
             }
+
         );
 
 
@@ -553,7 +663,8 @@ async function loadFavorites() {
             snapshot.docs.map(
                 item => ({
 
-                    id: item.id,
+                    id:
+                        item.id,
 
                     recipe:
                         item.data().recipe
@@ -624,24 +735,29 @@ async function saveFavorite(
 
         const docRef =
             await addDoc(
+
                 collection(
                     db,
                     "favorites"
                 ),
+
                 {
                     recipe: recipe,
 
                     createdAt:
                         serverTimestamp()
                 }
+
             );
 
 
         favorites.push({
 
-            id: docRef.id,
+            id:
+                docRef.id,
 
-            recipe: recipe
+            recipe:
+                recipe
 
         });
 
@@ -682,11 +798,13 @@ async function removeFavorite(
     try {
 
         await deleteDoc(
+
             doc(
                 db,
                 "favorites",
                 favoriteId
             )
+
         );
 
 
@@ -891,7 +1009,8 @@ function updateTheme() {
 
 function toggleTheme() {
 
-    darkMode = !darkMode;
+    darkMode =
+        !darkMode;
 
 
     localStorage.setItem(
@@ -904,9 +1023,11 @@ function toggleTheme() {
 
 
     showToast(
+
         darkMode
             ? "Dark mode enabled 🌙"
             : "Light mode enabled ☀️"
+
     );
 
 }
@@ -978,11 +1099,16 @@ function startVoiceInput() {
         new SpeechRecognition();
 
 
-    recognition.lang = "en-IN";
+    recognition.lang =
+        "en-IN";
 
-    recognition.interimResults = false;
 
-    recognition.continuous = false;
+    recognition.interimResults =
+        false;
+
+
+    recognition.continuous =
+        false;
 
 
     recognition.start();
@@ -1001,13 +1127,16 @@ function startVoiceInput() {
                     .transcript;
 
 
-            userInput.value =
-                transcript;
+            if (userInput) {
 
+                userInput.value =
+                    transcript;
 
-            autoResize();
+                autoResize();
 
-            userInput.focus();
+                userInput.focus();
+
+            }
 
         };
 
@@ -1075,8 +1204,13 @@ function showToast(
     message
 ) {
 
-    if (!toast || !toastMessage) {
+    if (
+        !toast ||
+        !toastMessage
+    ) {
+
         return;
+
     }
 
 
