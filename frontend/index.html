@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FoodieBot AI</title>
+
+    <meta
+        name="description"
+        content="FoodieBot AI - Your intelligent personal cooking assistant"
+    >
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- ==========================================
+         HEADER
+    =========================================== -->
+
+    <header class="app-header">
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                <i class="fa-solid fa-utensils"></i>
+            </div>
+
+            <div class="brand-info">
+                <h1>FoodieBot</h1>
+                <span>AI Cooking Assistant</span>
+            </div>
+
+        </div>
+
+
+        <div class="header-actions">
+
+            <button
+                class="header-btn"
+                id="themeBtn"
+                title="Toggle theme"
+            >
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <button
+                class="header-btn"
+                id="favoriteBtn"
+                title="Favorites"
+            >
+                <i class="fa-regular fa-heart"></i>
+            </button>
+
+            <div class="profile">
+
+                <div class="profile-avatar">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- ==========================================
+         MAIN
+    =========================================== -->
+
+    <main class="main-content">
+
+
+        <!-- ======================================
+             WELCOME
+        ======================================= -->
+
+        <section
+            class="welcome-section"
+            id="welcomeSection"
+        >
+
+            <div class="chef-animation">
+                <div class="chef-circle">
+                    👨‍🍳
+                </div>
+
+                <div class="sparkle sparkle-one">✦</div>
+                <div class="sparkle sparkle-two">✦</div>
+                <div class="sparkle sparkle-three">✦</div>
+            </div>
+
+
+            <span class="welcome-tag">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                AI POWERED
+            </span>
+
+
+            <h2>
+                What are you
+                <span>cooking</span> today?
+            </h2>
+
+
+            <p class="welcome-description">
+                Tell me what ingredients you have,
+                what you're craving, or simply ask me
+                for a delicious recipe.
+            </p>
+
+
+            <!-- ==================================
+                 QUICK ACTIONS
+            =================================== -->
+
+            <div class="quick-actions">
+
+                <button
+                    class="quick-action"
+                    data-prompt="I have eggs, tomato and onion. What can I cook?"
+                >
+
+                    <div class="quick-icon orange">
+                        🍳
+                    </div>
+
+                    <div>
+                        <strong>
+                            What's in my kitchen?
+                        </strong>
+
+                        <span>
+                            Turn ingredients into a recipe
+                        </span>
+                    </div>
+
+                    <i class="fa-solid fa-chevron-right"></i>
+
+                </button>
+
+
+                <button
+                    class="quick-action"
+                    data-prompt="Give me a healthy meal that takes less than 30 minutes"
+                >
+
+                    <div class="quick-icon green">
+                        🥗
+                    </div>
+
+                    <div>
+                        <strong>
+                            Healthy & Quick
+                        </strong>
+
+                        <span>
+                            Nutritious meals in minutes
+                        </span>
+                    </div>
+
+                    <i class="fa-solid fa-chevron-right"></i>
+
+                </button>
+
+
+                <button
+                    class="quick-action"
+                    data-prompt="Give me an easy Indian vegetarian recipe"
+                >
+
+                    <div class="quick-icon yellow">
+                        🍛
+                    </div>
+
+                    <div>
+                        <strong>
+                            Indian Favorites
+                        </strong>
+
+                        <span>
+                            Simple Indian recipes
+                        </span>
+                    </div>
+
+                    <i class="fa-solid fa-chevron-right"></i>
+
+                </button>
+
+
+                <button
+                    class="quick-action"
+                    data-prompt="Give me a high protein dinner recipe"
+                >
+
+                    <div class="quick-icon purple">
+                        💪
+                    </div>
+
+                    <div>
+                        <strong>
+                            High Protein
+                        </strong>
+
+                        <span>
+                            Power-packed meal ideas
+                        </span>
+                    </div>
+
+                    <i class="fa-solid fa-chevron-right"></i>
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ======================================
+             CHAT
+        ======================================= -->
+
+        <section
+            class="chat-section"
+            id="chatSection"
+        >
+
+            <div
+                class="messages"
+                id="messages"
+            ></div>
+
+
+            <!-- Typing -->
+            <div
+                class="typing-wrapper hidden"
+                id="typingIndicator"
+            >
+
+                <div class="bot-avatar">
+                    🍴
+                </div>
+
+                <div class="typing-content">
+
+                    <span>FoodieBot</span>
+
+                    <div class="typing-bubble">
+
+                        <i></i>
+                        <i></i>
+                        <i></i>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- ==========================================
+         INPUT AREA
+    =========================================== -->
+
+    <footer class="chat-footer">
+
+        <div class="input-container">
+
+            <button
+                class="add-button"
+                id="addButton"
+                title="Add ingredients"
+            >
+                <i class="fa-solid fa-plus"></i>
+            </button>
+
+
+            <textarea
+                id="userInput"
+                rows="1"
+                placeholder="Ask FoodieBot what to cook..."
+            ></textarea>
+
+
+            <div class="input-buttons">
+
+                <button
+                    class="voice-button"
+                    id="voiceBtn"
+                    title="Voice input"
+                >
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
+
+
+                <button
+                    class="send-button"
+                    id="sendBtn"
+                    title="Send message"
+                >
+                    <i class="fa-solid fa-arrow-up"></i>
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-info">
+
+            <span>
+                <i class="fa-solid fa-shield-halved"></i>
+                AI generated responses
+            </span>
+
+            <span>
+                Press Enter to send
+            </span>
+
+        </div>
+
+    </footer>
+
+
+    <!-- ==========================================
+         FAVORITES PANEL
+    =========================================== -->
+
+    <div
+        class="overlay hidden"
+        id="favoritePanel"
+    >
+
+        <div class="favorite-modal">
+
+            <div class="modal-header">
+
+                <div>
+                    <h3>My Favorites</h3>
+                    <span>Your saved recipes</span>
+                </div>
+
+                <button
+                    id="closeFavorite"
+                    class="close-btn"
+                >
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+            </div>
+
+
+            <div
+                class="favorite-content"
+                id="favoriteContent"
+            >
+
+                <div class="empty-favorites">
+
+                    <div>
+                        ❤️
+                    </div>
+
+                    <h4>No favorites yet</h4>
+
+                    <p>
+                        Your favorite recipes will appear here.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         TOAST
+    =========================================== -->
+
+    <div
+        class="toast"
+        id="toast"
+    >
+
+        <i class="fa-solid fa-circle-check"></i>
+
+        <span id="toastMessage">
+            Done
+        </span>
+
+    </div>
+
+
+    <!-- ==========================================
+         SCRIPT
+    =========================================== -->
+
+    <script type="module" src="script.js"></script>
+
+</div>
+
+</body>
+</html>
