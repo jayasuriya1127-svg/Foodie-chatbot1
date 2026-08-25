@@ -1,9 +1,20 @@
 import os
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
 from google import genai
+
+
+# =========================================================
+# PATH CONFIGURATION
+# =========================================================
+
+# backend/app.py
+# frontend/index.html
+FRONTEND_FOLDER = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "../frontend")
+)
 
 
 # =========================================================
@@ -39,12 +50,17 @@ if GEMINI_API_KEY:
         client = genai.Client(
             api_key=GEMINI_API_KEY
         )
+
         print("✅ Gemini client created successfully")
+
     except Exception as e:
+
         print("❌ Gemini client creation failed:")
         print(repr(e))
+
 else:
-    print("❌ GEMINI_API_KEY not found in .env")
+
+    print("❌ GEMINI_API_KEY not found")
 
 
 MODEL_NAME = "gemini-3.6-flash"
@@ -104,19 +120,60 @@ Rules:
 
 
 # =========================================================
-# HOME ROUTE
+# FRONTEND
 # =========================================================
 
 @app.route("/", methods=["GET"])
 def home():
 
+    index_file = os.path.join(
+        FRONTEND_FOLDER,
+        "index.html"
+    )
+
+    if os.path.exists(index_file):
+
+        return send_from_directory(
+            FRONTEND_FOLDER,
+            "index.html"
+        )
+
     return jsonify({
-        "success": True,
-        "message": "FoodieBot AI Backend is running 🚀",
-        "service": "FoodieBot AI",
-        "model": MODEL_NAME,
-        "gemini_configured": client is not None
-    })
+        "success": False,
+        "error": "Frontend index.html not found"
+    }), 404
+
+
+# =========================================================
+# FRONTEND STATIC FILES
+# =========================================================
+
+@app.route("/<path:filename>")
+def frontend_files(filename):
+
+    file_path = os.path.join(
+        FRONTEND_FOLDER,
+        filename
+    )
+
+    # Do not interfere with API routes
+    if filename in ["health", "chat"]:
+        return jsonify({
+            "success": False,
+            "error": "API endpoint"
+        }), 404
+
+    if os.path.isfile(file_path):
+
+        return send_from_directory(
+            FRONTEND_FOLDER,
+            filename
+        )
+
+    return jsonify({
+        "success": False,
+        "error": "File not found"
+    }), 404
 
 
 # =========================================================
@@ -127,10 +184,21 @@ def home():
 def health():
 
     return jsonify({
+
         "success": True,
+
         "status": "healthy",
-        "gemini": "configured" if client else "not configured",
+
+        "service": "FoodieBot AI",
+
+        "gemini": (
+            "configured"
+            if client
+            else "not configured"
+        ),
+
         "model": MODEL_NAME
+
     })
 
 
@@ -157,8 +225,11 @@ def chat():
             print("❌ Request is not JSON")
 
             return jsonify({
+
                 "success": False,
+
                 "error": "Request must be JSON"
+
             }), 400
 
 
@@ -175,9 +246,15 @@ def chat():
         # GET MESSAGE
         # -------------------------------------------------
 
-        message = data.get("message", "").strip()
+        message = data.get(
+            "message",
+            ""
+        ).strip()
 
-        print("💬 User message:", message)
+        print(
+            "💬 User message:",
+            message
+        )
 
 
         # -------------------------------------------------
@@ -187,8 +264,11 @@ def chat():
         if not message:
 
             return jsonify({
+
                 "success": False,
+
                 "error": "Message cannot be empty"
+
             }), 400
 
 
@@ -198,11 +278,17 @@ def chat():
 
         if client is None:
 
-            print("❌ Gemini client is not configured")
+            print(
+                "❌ Gemini client is not configured"
+            )
 
             return jsonify({
+
                 "success": False,
-                "error": "Gemini API key is not configured"
+
+                "error":
+                    "Gemini API key is not configured"
+
             }), 500
 
 
@@ -220,8 +306,14 @@ Answer the user directly.
 """
 
 
-        print("🤖 Sending request to Gemini...")
-        print("Model:", MODEL_NAME)
+        print(
+            "🤖 Sending request to Gemini..."
+        )
+
+        print(
+            "Model:",
+            MODEL_NAME
+        )
 
 
         # -------------------------------------------------
@@ -229,12 +321,17 @@ Answer the user directly.
         # -------------------------------------------------
 
         response = client.models.generate_content(
+
             model=MODEL_NAME,
+
             contents=prompt
+
         )
 
 
-        print("✅ Gemini response received")
+        print(
+            "✅ Gemini response received"
+        )
 
 
         # -------------------------------------------------
@@ -246,7 +343,9 @@ Answer the user directly.
 
         if not reply:
 
-            print("⚠️ Gemini returned empty response")
+            print(
+                "⚠️ Gemini returned empty response"
+            )
 
             reply = (
                 "Sorry, I couldn't generate a response. "
@@ -254,7 +353,10 @@ Answer the user directly.
             )
 
 
-        print("📝 Reply:", reply[:200])
+        print(
+            "📝 Reply:",
+            reply[:200]
+        )
 
 
         # -------------------------------------------------
@@ -262,30 +364,61 @@ Answer the user directly.
         # -------------------------------------------------
 
         return jsonify({
+
             "success": True,
+
             "reply": reply
+
         })
 
 
     except Exception as error:
 
         # =================================================
-        # IMPORTANT: SHOW ACTUAL ERROR
+        # ACTUAL ERROR
         # =================================================
 
-        print("\n" + "=" * 60)
-        print("❌ FOODIEBOT ACTUAL ERROR")
-        print("=" * 60)
-        print("Error type:", type(error).__name__)
-        print("Error:", str(error))
-        print("Full error:", repr(error))
-        print("=" * 60 + "\n")
+        print(
+            "\n" + "=" * 60
+        )
+
+        print(
+            "❌ FOODIEBOT ACTUAL ERROR"
+        )
+
+        print(
+            "=" * 60
+        )
+
+        print(
+            "Error type:",
+            type(error).__name__
+        )
+
+        print(
+            "Error:",
+            str(error)
+        )
+
+        print(
+            "Full error:",
+            repr(error)
+        )
+
+        print(
+            "=" * 60 + "\n"
+        )
 
 
         return jsonify({
+
             "success": False,
+
             "error": str(error),
-            "error_type": type(error).__name__
+
+            "error_type":
+                type(error).__name__
+
         }), 500
 
 
@@ -297,8 +430,11 @@ Answer the user directly.
 def not_found(error):
 
     return jsonify({
+
         "success": False,
+
         "error": "API endpoint not found"
+
     }), 404
 
 
@@ -310,8 +446,11 @@ def not_found(error):
 def internal_error(error):
 
     return jsonify({
+
         "success": False,
+
         "error": "Internal server error"
+
     }), 500
 
 
@@ -322,9 +461,19 @@ def internal_error(error):
 if __name__ == "__main__":
 
     print("\n")
+
     print("=" * 60)
-    print("🍴 FOODIEBOT AI BACKEND")
+
+    print(
+        "🍴 FOODIEBOT AI"
+    )
+
     print("=" * 60)
+
+    print(
+        "📁 Frontend:",
+        FRONTEND_FOLDER
+    )
 
     print(
         "🔑 Gemini API:",
@@ -340,15 +489,31 @@ if __name__ == "__main__":
         else "Not Ready ❌"
     )
 
-    print("🧠 Model:", MODEL_NAME)
+    print(
+        "🧠 Model:",
+        MODEL_NAME
+    )
 
-    print("🌐 Server: http://127.0.0.1:5000")
+    print(
+        "🌐 Server:",
+        "http://127.0.0.1:5000"
+    )
 
     print("=" * 60)
+
     print("\n")
 
     app.run(
+
         host="0.0.0.0",
-        port=5000,
-        debug=True
+
+        port=int(
+            os.environ.get(
+                "PORT",
+                5000
+            )
+        ),
+
+        debug=False
+
     )
